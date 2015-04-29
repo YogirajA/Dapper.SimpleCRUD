@@ -241,16 +241,7 @@ namespace Dapper
                 }
             }
 
-            var name = GetTableName(entityToInsert);
-            var sb = new StringBuilder();
-            sb.AppendFormat("insert into {0}", name);
-            sb.Append(" (");
-            BuildInsertParameters(entityToInsert, sb);
-            sb.Append(") ");
-            sb.Append("values");
-            sb.Append(" (");
-            BuildInsertValues(entityToInsert, sb);
-            sb.Append(")");
+            var sb = InsertBuilder(entityToInsert);
 
             if (keytype == typeof (Guid))
             {
@@ -271,6 +262,36 @@ namespace Dapper
                 return (TKey)idProps.First().GetValue(entityToInsert, null);
             }
             return (TKey)r.First().id;
+        }
+
+        private static StringBuilder InsertBuilder(object entityToInsert)
+        {
+            var name = GetTableName(entityToInsert);
+            var sb = new StringBuilder();
+            sb.AppendFormat("insert into {0}", name);
+            sb.Append(" (");
+            BuildInsertParameters(entityToInsert, sb);
+            sb.Append(") ");
+            sb.Append("values");
+            sb.Append(" (");
+            BuildInsertValues(entityToInsert, sb);
+            sb.Append(")");
+            return sb;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="entityToInsert"></param>
+        /// <param name="transaction"></param>
+        /// <param name="commandTimeout"></param>
+        /// <returns></returns>
+        public static int InsertNoPkConstraint(this IDbConnection connection,
+            object entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            var sb = InsertBuilder(entityToInsert);
+
+            return connection.Execute(sb.ToString(), entityToInsert, transaction, commandTimeout);
         }
 
 

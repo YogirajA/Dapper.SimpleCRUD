@@ -53,6 +53,26 @@ namespace Dapper.SimpleCRUDTests
                 connection.Execute(@" CREATE TABLE [dbo].[GUIDTest]([guid] [uniqueidentifier] NOT NULL,[name] [varchar](50) NOT NULL, CONSTRAINT [PK_GUIDTest] PRIMARY KEY CLUSTERED ([guid] ASC))");
                 connection.Execute(@" create table StrangeColumnNames (ItemId int IDENTITY(1,1) not null Primary Key, word nvarchar(100) not null, colstringstrangeword nvarchar(100) not null) ");
 
+                connection.Execute(@"CREATE TABLE [dbo].[Parts](
+	                                [PartId] [int] IDENTITY(1,1) NOT NULL,
+	                                [PartName] [varchar](100) NULL
+                                   CONSTRAINT [PK_Parts] PRIMARY KEY CLUSTERED ([PartId] ASC)) ON [PRIMARY]
+
+                                   CREATE TABLE [dbo].[Dealers](
+	                                [DealerId] [int] IDENTITY(1,1) NOT NULL,
+	                                [DealerName] [varchar](100) NULL
+                                    CONSTRAINT [PK_Dealers] PRIMARY KEY CLUSTERED ([DealerId] ASC)) ON [PRIMARY]
+
+                                    CREATE TABLE [dbo].[DealerParts](
+	                                [DealerId] [int] NOT NULL,
+	                                [PartId] [int] NOT NULL ) 
+
+                                    ALTER TABLE [dbo].[DealerParts]  WITH CHECK ADD  CONSTRAINT [FK_DealerParts_Dealers] FOREIGN KEY([DealerId])
+                                    REFERENCES [dbo].[Dealers] ([DealerId])
+
+                                    ALTER TABLE [dbo].[DealerParts]  WITH CHECK ADD  CONSTRAINT [FK_DealerParts_Parts] FOREIGN KEY([PartId])
+                                    REFERENCES [dbo].[Parts] ([PartId])");
+
             }
             Console.WriteLine("Created database");
         }

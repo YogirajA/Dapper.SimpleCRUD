@@ -112,6 +112,26 @@ namespace Dapper.SimpleCRUDTests
 
     }
 
+    public class Parts
+    {
+        [Key]
+        public int PartId { get; set; }
+        public string PartName { get; set; }
+    }
+
+    public class Dealers
+    {
+        [Key]
+        public int DealerId { get; set; }
+        public string DealerName { get; set; }
+    }
+
+    public class DealerParts
+    {   
+        public int DealerId { get; set; }
+        public int PartId { get; set; }
+    }
+ 
     #endregion
 
     public class Tests
@@ -305,9 +325,7 @@ namespace Dapper.SimpleCRUDTests
             }
         }
 
-
-
-
+       
         public void InsertWithSpecifiedKey()
         {
             using (var connection = GetOpenConnection())
@@ -384,6 +402,18 @@ namespace Dapper.SimpleCRUDTests
             }
         }
 
+        public void TestInsertAssociativeWithNoPk()
+        {
+            using (var connection = GetOpenConnection())
+            {
+                
+                var dealerId =  connection.Insert(new Dealers { DealerName = "D1" });
+                var partId = connection.Insert(new Parts { PartName = "P1" });
+                var returnVal = connection.InsertNoPkConstraint(new DealerParts { DealerId = dealerId.Value, PartId = partId.Value });
+                returnVal.IsEqualTo(1);
+                
+            }
+        }
         public void TestGetFromDifferentSchema()
         {
             using (var connection = GetOpenConnection())
